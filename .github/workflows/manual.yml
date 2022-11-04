@@ -1,0 +1,44 @@
+name: 'General Playbook'
+
+on: 
+  push:
+    branches:
+      - master
+      - dev_master
+
+jobs:
+  general_job:
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+          repository: https://github.com/pdurbin/maven-hello-world.git
+          path: "~/mvn"
+
+      - name: Replace string
+        run: |
+        sed -i 's/World/Noam/g' ~/mvn/my-app/src/main/java/com/mycompany/app/App.java
+
+      - name: Change Java ver
+        run: |
+        sed -i 's/1.8/1.0.1/g' ~/mvn/my-app/pom.xml/ (Will probably need more "" and '' to work due to the dot)
+
+      - name: Compile code
+        run: |
+        cd "~/mvn/my-app/"; mvn package
+
+      - name: Build docker image
+        run: | 
+        cd "~/path_to_docker_folder"; docker build -t fedora36_mvn .
+
+      - name: Tag docker image
+        run: |
+        docker tag fedora36_mvn fedora/fedora36_mvn:version1.0.1
+
+      - name: Push docker to hub
+        run: |
+        docker fedora36_mvn push
+
+      - name: Download docker image from hub and run it
+        run: | 
+        docker pull fedora36_mvn:version1.0.1; docker run fedora36_mvn
