@@ -1,0 +1,17 @@
+---
+- name: General Playbook
+  hosts: all
+
+  tasks:
+  - name: Install Docker
+    ansible.builtin.dnf:
+      name: docker
+      state: latest
+
+  - name: Create docker webserver container
+    shell:
+        "cd /root/docker; docker build -t testingvm ."
+
+  - name: Run Docker Container
+    shell:
+        "docker run -dit --name testingvm -p 80:9000 -p 443:9000 testingvm"
